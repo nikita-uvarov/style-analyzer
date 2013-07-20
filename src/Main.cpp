@@ -27,7 +27,7 @@ int main (int argc, char** argv)
 	CXIndex clangIndex = clang_createIndex (0, 0);
 	assert (clangIndex);
 	
-    CXTranslationUnit clangTranslationUnit = clang_parseTranslationUnit (clangIndex, nullptr, argv + 1, argc - 1, nullptr, 0, CXTranslationUnit_DetailedPreprocessingRecord);
+	CXTranslationUnit clangTranslationUnit = clang_parseTranslationUnit (clangIndex, nullptr, argv + 1, argc - 1, nullptr, 0, CXTranslationUnit_DetailedPreprocessingRecord);
 
 	if (!clangTranslationUnit)
 	{
@@ -72,7 +72,7 @@ int main (int argc, char** argv)
 	
 	cerr << "Context processing started." << endl;
 
-    //clang_visitChildren (clang_getTranslationUnitCursor (TU), visit_fn, nullptr);
+	//clang_visitChildren (clang_getTranslationUnitCursor (TU), visit_fn, nullptr);
 
 	/*CXSourceRange range = clang_getCursorExtent (clang_getTranslationUnitCursor (TU));
 	CXToken* tokens;
@@ -95,8 +95,8 @@ int main (int argc, char** argv)
 		clang_disposeString (spelling);
 	}*/
 
-    clang_disposeTranslationUnit (clangTranslationUnit);
-    clang_disposeIndex (clangIndex);
+	clang_disposeTranslationUnit (clangTranslationUnit);
+	clang_disposeIndex (clangIndex);
 	
 	return 0;
 }

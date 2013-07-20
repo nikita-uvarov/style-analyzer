@@ -28,7 +28,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE}")
 
 set(style_analyzer_sources
-	src/main.cpp)
+    src/main.cpp)
 
 add_executable(style_analyzer ${style_analyzer_sources})
 target_link_libraries(style_analyzer clang stdc++)
