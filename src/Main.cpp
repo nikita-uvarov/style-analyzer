@@ -43,6 +43,7 @@ int unsafeMain (int argc, char** argv)
 
     return 0;
 
+#if 0
 	CXIndex clangIndex = clang_createIndex (0, 0);
 	saAssert (clangIndex);
 
@@ -127,6 +128,7 @@ int unsafeMain (int argc, char** argv)
 	saLog ("Leaving unsafeMain");
 
 	return 0;
+#endif
 }
 
 int loggedMain (int argc, char** argv)

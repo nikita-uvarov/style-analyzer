@@ -3,6 +3,7 @@
 #include "ApplicationLog.h"
 #include "FileStreams.h"
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <cstdio>
 
@@ -82,7 +83,7 @@ BOOST_AUTO_TEST_CASE (IniConfigurationSyntax)
     // Inclusion
     BOOST_CHECK_EXCEPTION (loadFromString ("\n\n\n#include <library> someshit\n"), IniConfigurationException, invalidSyntax);
     BOOST_CHECK_EXCEPTION (loadFromString ("\n\n\n#include\n<library>\n"), IniConfigurationException, invalidSyntax);
-    BOOST_CHECK_EXCEPTION (loadFromString ("\n\n\n#include <include-not-found>\n"), IniConfigurationException, invalidSyntax);
+    BOOST_CHECK_THROW (loadFromString ("\n\n\n#include <include-not-found>\n"), FileNotFoundException);
 
     // Key-value pairs
     BOOST_CHECK_EXCEPTION (loadFromString ("key hello = \"test\""), IniConfigurationException, invalidSyntax);
@@ -163,7 +164,7 @@ BOOST_AUTO_TEST_CASE (IniConfigurationSemantics)
         BOOST_CHECK_EQUAL (config["key"], "two");
     }
 
-    // C++ API
+    // C++ API basics
     {
         load ("key=\"one\"");
         config["key"] = "two";
@@ -175,6 +176,17 @@ BOOST_AUTO_TEST_CASE (IniConfigurationSemantics)
         BOOST_CHECK_EXCEPTION (test = config["key"] == "hello", IniConfigurationException, invalidPropertyValue);
 
         BOOST_CHECK_EXCEPTION (test = config["notfound"] == "hello", IniConfigurationException, undefinedIniProperty);
+    }
+
+    // C++ API property-relative paths
+    {
+        unique_ptr <IniConfiguration> configuration = loadFromFile ("data/relative-reference.ini");
+        IniConfiguration& config = *configuration.get();
+        BOOST_CHECK_PREDICATE ((::boost::algorithm::ends_with <string, string>),
+                               (config["paths"].resolveRelativePath (0, config["paths"].asVector()[0]))("recurse/a.ini"));
+        BOOST_CHECK_PREDICATE ((::boost::algorithm::ends_with <string, string>),
+                               (config["paths"].resolveRelativePath (1, config["paths"].asVector()[1]))("syntax.ini"));
+        BOOST_CHECK_THROW (config["paths"].resolveRelativePath (2, config["paths"].asVector()[2]), FileNotFoundException);
     }
 
 #undef load

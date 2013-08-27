@@ -70,6 +70,8 @@ namespace sa
 		{
 			return line > 0;
 		}
+
+		static IniFileLocation invalidLocation();
 	};
 
 	template <typename T>
@@ -114,7 +116,7 @@ namespace sa
             friend const T& assign (IniProperty& p, const T& rhs)
             {
                 p.values.assign (1, toString (rhs));
-                p.valuesDefinedAt.clear();
+                p.valuesDefinedAt.push_back (IniFileLocation::invalidLocation());
                 p.used = false;
 
                 return rhs;
@@ -132,7 +134,7 @@ namespace sa
                 IniProperty& p = getProperty();
 
                 p.values.push_back (toString (value));
-                p.valuesDefinedAt.clear();
+                p.valuesDefinedAt.push_back (IniFileLocation::invalidLocation());
                 p.used = false;
             }
 
@@ -154,6 +156,7 @@ namespace sa
                 p.used = false;
             }
 
+            string resolveRelativePath (unsigned index, string transformedPath);
 		};
 	};
 
@@ -174,6 +177,7 @@ namespace sa
 	public :
 		IniProperty::Accessor operator[] (const string& key);
 
+        // TODO: Make it save file info for entries coming from file
 		void overrideWith (IniConfiguration& other);
 
 		// Issue messages would contain 'on line <..> of <iniSourceName>'

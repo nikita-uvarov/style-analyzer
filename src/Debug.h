@@ -87,28 +87,51 @@ namespace sa
         string description;
     };
 
-	class InvalidArgumentException : public Exception
-	{
-	public :
-		InvalidArgumentException (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string description, string argument = "") :
-			Exception (fileOrigin, lineOrigin, functionOrigin, "Invalid argument '" + string (argument) + "': " + description), description (description), argument (argument)
-		{}
+    class InvalidArgumentException : public Exception
+    {
+    public :
+        InvalidArgumentException (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string description, string argument = "") :
+            Exception (fileOrigin, lineOrigin, functionOrigin, "Invalid argument '" + string (argument) + "': " + description), description (description), argument (argument)
+        {}
 
-		const string& getDescription() const
-		{
-			return description;
-		}
+        const string& getDescription() const
+        {
+            return description;
+        }
 
-		const string& getArgument() const
-		{
-			return argument;
-		}
+        const string& getArgument() const
+        {
+            return argument;
+        }
 
-		string toString() const;
+        string toString() const;
 
-	private :
-		string description, argument;
-	};
+    private :
+        string description, argument;
+    };
+
+    class FileNotFoundException : public Exception
+    {
+    public :
+        FileNotFoundException (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string path, string context) :
+            Exception (fileOrigin, lineOrigin, functionOrigin, "File not found: '" + string (path) + "' " + context), context (context), path (path)
+        {}
+
+        const string& getContext() const
+        {
+            return context;
+        }
+
+        const string& getPath() const
+        {
+            return path;
+        }
+
+        string toString() const;
+
+    private :
+        string context, path;
+    };
 
 #ifndef IN_KDEVELOP_PARSER
 #   define throwAssertionFailure(str) throw sa::AssertionFailure (__ORIGIN__, str)

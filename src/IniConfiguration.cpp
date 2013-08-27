@@ -5,6 +5,11 @@
 using namespace sa;
 using namespace std;
 
+IniFileLocation IniFileLocation::invalidLocation()
+{
+    return IniFileLocation { static_cast <IniFileId> (0), 0 };
+}
+
 IniProperty::Accessor IniConfiguration::operator[] (const string& key)
 {
 	return IniProperty::Accessor (*this, key);
@@ -47,6 +52,26 @@ IniProperty::Accessor::operator string() const
     if (values.size() != 1)
         throw IniConfigurationException (__ORIGIN__, IniConfigurationException::Type::INVALID_INI_PROPERTY_VALUE, "Single value expected.");
     return values[0];
+}
+
+string IniProperty::Accessor::resolveRelativePath (unsigned index, string transformedPath)
+{
+    IniProperty& property = getProperty();
+    saAssert (index >= 0 && index < property.valuesDefinedAt.size());
+
+    IniFileLocation location = property.valuesDefinedAt[index];
+    if (!location.isValid())
+        throw InvalidArgumentException (__ORIGIN__, "Could not resolve property-relative path: property path unavailiable. "
+                                                    "(it was not probably declared in a file)", "index");
+
+    IFileSystem& fileSystem = FileSystem::instance();
+
+    string relativeTo = parent.fileNamesUsed[location.fileId];
+    string newPath = fileSystem.appendPath (fileSystem.getDirectoryPath (relativeTo), transformedPath);
+    if (fileSystem.fileExists (newPath))
+        return newPath;
+    else
+        throw FileNotFoundException (__ORIGIN__, transformedPath, " referenced in a property '" + key + "' declared in '" + relativeTo + "'.");
 }
 
 ostream& sa::operator<< (ostream& stream, const IniProperty::Accessor& accessor)
@@ -522,7 +547,7 @@ unique_ptr <IInputStream> IniIncludeManager::openInputStream (IRelativeStreamsMa
 		}
 	}
 
-	return nullptr;
+	throw FileNotFoundException (__ORIGIN__, relativeName, " searched relative to '" + getStream (relativeTo).sourceDirectory + "'.");
 }
 
 unique_ptr <IInputStream> IniIncludeManager::openInputStream (string fileName, RelativeInputStreamFlags flags)

@@ -21,3 +21,8 @@ string sa::UnreachableCodeFailure::toString() const
 {
     return "Normally unreachable code executed: " + description;
 }
+
+string sa::FileNotFoundException::toString() const
+{
+    return "File not found: '" + path + "' " + context;
+}
