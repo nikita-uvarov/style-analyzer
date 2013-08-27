@@ -1,5 +1,5 @@
-#ifndef PROJECT_CONTEXT_H
-#define PROJECT_CONTEXT_H
+#ifndef STYLE_ANALYZER_PROJECT_CONTEXT_H
+#define STYLE_ANALYZER_PROJECT_CONTEXT_H
 
 #include <vector>
 #include <iostream>
@@ -21,4 +21,4 @@ namespace sa
 	};
 }
 
-#endif // PROJECT_CONTEXT_H
+#endif // STYLE_ANALYZER_PROJECT_CONTEXT_H

@@ -1,47 +1,31 @@
-#ifndef NAME_CONTEXT_H
-#define NAME_CONTEXT_H
+#ifndef STYLE_ANALYZER_NAME_CONTEXT_H
+#define STYLE_ANALYZER_NAME_CONTEXT_H
 
 #include <iostream>
+#include <memory>
+
+#include <clang-c/Index.h>
+
+#include "Streams.h"
 
 namespace sa
 {
 	using std::ifstream;
 	using std::ofstream;
+	using std::unique_ptr;
 		
 	class NameContext
 	{
 	public :
-		
-		template <typename TOutputStream>
-		void save (TOutputStream stream)
-		{
-			saveImpl (stream);
-		}
-		
-		template <typename TInputStream>
-		static unique_ptr <NameContext> load (TInputStream stream)
-		{
-			return loadImpl (stream);
-		}
+		void save (IOutputStream* stream);
+		static unique_ptr <NameContext> load (IInputStream* stream);
+		static unique_ptr <NameContext> create (CXTranslationUnit unit);
 		
 	private :
 		
 		NameContext (const NameContext&) = delete;
 		NameContext& operator= (const NameContext&) = delete;
-		
-		template <typename TOutputStream>
-		void saveImpl (TOutputStream /*stream*/)
-		{
-			// ...
-		}
-		
-		template <typename TOutputStream>
-		static unique_ptr <NameContext> loadImpl (TOutputStream /*stream*/)
-		{
-			// ...
-			return nullptr;
-		}
 	};
 }
 
-#endif // NAME_CONTEXT_H
+#endif // STYLE_ANALYZER_NAME_CONTEXT_H

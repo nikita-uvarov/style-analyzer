@@ -1,6 +1,9 @@
 project(style_analyzer)
 cmake_minimum_required(VERSION 2.6)
 
+find_package(Boost COMPONENTS filesystem system REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Instead of trying to keep an up-to-date list of supported warnings, just blacklist the unneeded and noisy ones
@@ -12,25 +15,46 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++98-compat -Wno-c++98-compat-peda
 # Want to use shadowing when handy (i. e. in constructors)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shadow")
 
-# FIXME
-# Want to use assert (!"Explanation") construction.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-string-conversion")
-
 # Unneeded optimizations should be avoided. Let the structures be padded as the compiler wants.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-padded")
+
+# Required for Boost.Test macros to compile
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-global-constructors")
+
+# How to implement singletones without them?
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-exit-time-destructors")
 
 # Stupid warnings go here.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-prototypes")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -DBUILD_CONFIGURATION_DEBUG")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE}")
 
-set(style_analyzer_sources
-    src/main.cpp)
+set(style_analyzer_library_sources
+    src/FileContext.cpp
+    src/Streams.cpp
+    src/Debug.cpp
+    src/ApplicationLog.cpp
+    src/IndentationContext.cpp
+    src/NameContext.cpp
+    src/Utilities.cpp
+    src/IniConfiguration.cpp
+    src/FileStreams.cpp
+    src/FileSystem.cpp)
 
-add_executable(style_analyzer ${style_analyzer_sources})
-target_link_libraries(style_analyzer clang stdc++)
+add_subdirectory(tests/unit)
 
-install(TARGETS style_analyzer RUNTIME DESTINATION bin)
+add_library(style_analyzer_library ${style_analyzer_library_sources})
+target_link_libraries(style_analyzer_library clang stdc++ ${Boost_LIBRARIES})
+
+set(style_analyzer_tool_sources
+	src/Main.cpp)
+
+add_executable(style_analyzer_tool ${style_analyzer_tool_sources})
+target_link_libraries(style_analyzer_tool style_analyzer_library)
+
+#install(TARGETS style_analyzer_library RUNTIME DESTINATION bin)
+
+enable_testing()
