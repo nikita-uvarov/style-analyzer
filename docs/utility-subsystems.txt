@@ -1,0 +1,13 @@
+=== Internationalization support subsystem ===
+
+Some parts of the application (e.g. html output generator & all log function callers) need to format strings, i.e. produce a combination of a predefined string and data. Doing this in printf-like manner is not expansible with custom objects to output. Doing this in a cout-like manner doesn't allow to separate strings from data & requires to write much code.
+
+The decision is to use the following format:
+log ("format string: %d %s %d") << 10 << str << 20;
+
+A temporary object is created to hold the format string & all arguments. Object's destructor than prints everything.
+
+Why is this good?
+- the temporary object preserves passed argument & checks them => type safety in runtime
+- easy to add internationalization support (also, specifiers may be extended to support arbitrary order of arguments)
+- compact code

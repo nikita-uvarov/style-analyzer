@@ -1,0 +1,82 @@
+Output channels:
+- indentation: ok, bad and ignored space ranges.
+- names: groups, for each: good and bad names.
+- usage statistics: list.
+- other warnings/hints: clang-like (list).
+Format: linked html.
+
+Optional expand/separate file output format.
+In source views: common JS shortcuts for navigation:
+- Up/Down/PgUp/PgDown scrolls source code. Mod+Up/Down scrolls issues view.
+- Left/Right navigate issues. Mod+Left/Right navigates issues by criticalness level.
+- Active issue gets highlighted brightly. Other issues are highlighted in lighter colors too if they don't overlap with the selected one.
+- A click on an issue makes it active.
+- Status bar displays last used key shortcut.
+- An issue has a configurable list of links for 'further reading'. It is possible to write own translations/dynamically change language.
+
+Main page:
+- Compiler output. Link to source view.
+- Style checker output. Progress bar + link to source view with invalids highlighted. Shortcut to switch to formatted source.
+  Link to debug view: tooltips show token class & mods/variables assigned. List of all productions, solver output.
+- Names analysis output. Rating + Expandable sections + good/bad lists.
+
+And how to do it all? Abstractions are mandatory.
+Tool must support analyzing multiple input files (a project), although not to limit the applicability to *nix systems by implementing it in a 'scan-build' manner, the invoker must deal with the arguments by hand.
+Some options are possibly required for tool to work, i. e. at least include directory flags and probably a lot of extra options in complicated cases.
+So, the model is:
+- if the invoker is a ejudge-like system, it knows all the options.
+- if the invoker is a scan-build like environment, it parses the required options before the tool invocation.
+- if the invoker is an IDE plugin, it uses project options to find out the required switches.
+When tool is launched on an input file, every module dumps neccessary analysis information into temporary context file. Then a final launch is performed and context is analysed.
+
+Common routines:
+Source files =(input processor)> Cached sources.
+Other modules may use some high-level code location object.
+
+For indentation analysis:
+Source files =(input processor)> Token stream (token values) + token types + space intervals + i-modifiers + found parallelism notes =(equation solver)> Same + solved system.
+
+For names analysis:
+Source files =(input processor)> Names list + contexts =(Naming style analyser)> Good/bad lists.
+
+For usage statistics:
+Source files =(input processor)> Feature - occurences list.
+
+A special library offers high-level context loading & manipulation routines.
+How to test it?
+There are test projects = sources + project configuration.
+There are optional assertion files.
+Test module first runs the tool on all files under valgrind.
+Test module loads all contexts after the analysis and performs a set of tests.
+Some tests are performed only if a corresponding assertion file is present.
+Test projects are traversed recursively. Addition of new tests should be as easy as possible.
+Ideally, tests are written before new features are implemented.
+
+The resulting contexts are output in html format in future.
+
+Project planned features:
+- Encoding-aware: supports UTF8 sources only, but handles utf8 characters correctly (i. e. doesn't assume (line;column) <=> buffer offset).
+  Tests when multibyte characters are in string literals/identifies should be included.
+- 32/64-bit systems support.
+- Cross platform.
+- (tested accurately).
+- No unneeded modulariry. No abstract extensibility (only real, i.e. easy to add new token types).
+- Nice html output: good fonts, accurate source views.
+
+Test types:
+- token stream consistency. Asserts that token contents are equal to buffer contents, the whole buffer is covered & buffer = file / strip empty / replace tabs.
+
+Planned test cases:
+- UTF8 file names & command line arguments.
+- UTF8 identifiers & literals in program. Can borrow from clang lexer.
+
+TODO:
+Add git pre-commit hook to compile & run all tests.
+
+Logging, errors, issues and anything else handling:
+- There is application log for application messages & errors. Errors signal about internal errors, invalid invocation or environment (asserts, signals, bad_alloc's and other STL exceptions, custom exceptions go here). Messages are generally used for debugging errors. Issues are errors caused by user input. They are stored in corresponding contexts.
+- First, program parses own arguments (those before --). If there is an error parsing them, prints to stderr and halts.
+- Tries to open application log for writing. If error - print to stderr and halt.
+- Following errors go to application log.
+
+All errors are logged. Messages can be filtered by origin (__FILE__/__LINE__/__FUNCTION__ pair) in runtime or when viewing log (dynamically filter entries). The function can also know if her messages of specific type would get logged (unneeded won't get logged & time-consuming logging operations would be skipped completely).

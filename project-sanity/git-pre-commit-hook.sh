@@ -46,6 +46,11 @@ then
 	exit 1
 fi
 
+# If there are whitespace errors, print the offending file names and fail.
+if ! git diff-index --check --cached $against --; then
+    exit 1
+fi
+
 # Check that the project is ok
 
 # First check style
@@ -70,5 +75,4 @@ echo "Project compiled & unit tests ran."
 
 popd >/dev/null
 
-# If there are whitespace errors, print the offending file names and fail.
-exec git diff-index --check --cached $against --
+exit 0
