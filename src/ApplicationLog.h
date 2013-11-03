@@ -6,6 +6,7 @@
 #include <map>
 
 #include "Streams.h"
+#include "StringFormatter.h"
 
 namespace sa
 {
@@ -86,8 +87,25 @@ private :
 
 string formatLogEntryForStderr (const char* file, int line, const char* function, string message, bool error);
 
-#define saLog(message) sa::ApplicationLogger::instance().log (__ORIGIN__, (message), false)
-#define saError(message) sa::ApplicationLogger::instance().log (__ORIGIN__, (message), true)
+//#define saLogPure(message) sa::ApplicationLogger::instance().log (__ORIGIN__, (message), false)
+//#define saErrorPure(message) sa::ApplicationLogger::instance().log (__ORIGIN__, (message), true)
+
+class LogAction : public IAfterformatAction
+{
+public :
+    LogAction (const char* file, int line, const char* function, bool error);
+
+    virtual void fire (string formattedString);
+
+private :
+    const char* file;
+    int line;
+    const char* function;
+    bool error;
+};
+
+#define saLog(message)  sa::FormatObjectsHolder (saTranslate (message), new sa::LogAction (__ORIGIN__, false))
+#define saError(message) sa::FormatObjectsHolder (saTranslate (message), new sa::LogAction (__ORIGIN__, true))
 
 }
 

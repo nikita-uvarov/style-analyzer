@@ -3,7 +3,8 @@ include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CU
 
 set(style_analyzer_unit_test_sources
     Common.cpp
-	ini-configuration/IniConfigurationTest.cpp)
+    ini-configuration/IniConfigurationTest.cpp
+    string-formatter/StringFormatterTest.cpp)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
 add_executable (style-analyzer-unit-test ${style_analyzer_unit_test_sources})

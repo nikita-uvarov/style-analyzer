@@ -26,13 +26,11 @@ void processProjectFile (string projectFile)
                                                                            &includeManager));
 
     string projectName = (*project)["project.name"];
-    saLog ("Project name: '" + projectName + "'");
-    saLog ("Project description: '" + (*project)["project.description"].asString() + "'.");
+    saLog ("Project name: '%1'") << projectName;
+    saLog ("Project description: '%1'") << (*project)["project.description"].asString();
 
     vector <string> files = (*project)["grabber.files"].asVector();
-
-    for (string s: files)
-        saLog ("Project file: '" + s + "'.");
+    saLog ("Project files: %1") << files;
 
     if ((*project)["project.dograbbing"].asBoolean())
     {
@@ -169,11 +167,11 @@ int loggedMain (int argc, char** argv)
     }
     catch (sa::Exception& e)
     {
-        saError ("sa::Exception caught:\n" + e.toString() + "\nRaised in " + e.originToString());
+        saError ("sa::Exception caught:\n%1\nRaised in %2") << e.toString() << e.originToString();
     }
     catch (std::exception& e)
     {
-        saError (string ("STL Exception caught:\n") + e.what());
+        saError ("STL Exception caught:\n%1") << e.what();
     }
     catch (...)
     {

@@ -189,3 +189,12 @@ bool ApplicationLog::isErrorEntry (unsigned int entryIndex) const
 {
     return entries[entryIndex].isError;
 }
+
+LogAction::LogAction (const char* file, int line, const char* function, bool error) :
+    file (file), line (line), function (function), error (error)
+{}
+
+void LogAction::fire (string formattedString)
+{
+    sa::ApplicationLogger::instance().log (file, line, function, formattedString, error);
+}

@@ -42,7 +42,9 @@ set(style_analyzer_library_sources
     src/Utilities.cpp
     src/IniConfiguration.cpp
     src/FileStreams.cpp
-    src/FileSystem.cpp)
+    src/FileSystem.cpp
+    src/StringFormatter.cpp
+    src/Internationalization.cpp)
 
 add_subdirectory(tests/unit)
 

@@ -18,7 +18,7 @@ string convertClangString (CXString clangString, bool assertNonNull = true)
 unique_ptr <FileContext> FileContext::create (CXTranslationUnit unit)
 {
     string sourceFileName = convertClangString (clang_getTranslationUnitSpelling (unit));
-    saLog ("Translation unit corresponds to file '" + sourceFileName + "'");
+    saLog ("Translation unit corresponds to file '%1'") << sourceFileName;
 
     unique_ptr <UniversalInputStream> stream
         = UniversalInputStream::openInputStream (sourceFileName, RelativeInputStreamFlags::NONE);
