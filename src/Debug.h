@@ -8,130 +8,137 @@
 
 namespace sa
 {
-	using std::string;
 
-	class Exception : public std::runtime_error
-	{
-	public :
+using std::string;
 
-		const string& getFileOrigin() const
-		{
-			return fileOrigin;
-		}
+class Exception : public std::runtime_error
+{
+public :
 
-		const string& getFunctionOrigin() const
-		{
-			return functionOrigin;
-		}
+    const string& getFileOrigin() const
+    {
+        return fileOrigin;
+    }
 
-		int getLineOrigin() const
-		{
-			return lineOrigin;
-		}
+    const string& getFunctionOrigin() const
+    {
+        return functionOrigin;
+    }
 
-		string originToString()
-		{
-			return "'" + getFileOrigin() + ":" + sa::toString (getLineOrigin()) + "' at '" + getFunctionOrigin() + "'";
-		}
+    int getLineOrigin() const
+    {
+        return lineOrigin;
+    }
 
-		virtual string toString() const = 0;
+    string originToString()
+    {
+        return "'" + getFileOrigin() + ":" + sa::toString (getLineOrigin()) + "' at '" + getFunctionOrigin() + "'";
+    }
 
-	protected :
-		Exception (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string what) :
-			runtime_error (("\n" + string (fileOrigin) + ":" + sa::toString (lineOrigin) + ": " + what).c_str()),
-			fileOrigin (fileOrigin), functionOrigin (functionOrigin), lineOrigin (lineOrigin)
-		{}
+    virtual string toString() const = 0;
 
-		virtual ~Exception();
+protected :
+    Exception (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string what) :
+        runtime_error (("\n" + string (fileOrigin) + ":" + sa::toString (lineOrigin) + ": " + what).c_str()),
+        fileOrigin (fileOrigin), functionOrigin (functionOrigin), lineOrigin (lineOrigin)
+    {}
 
-	private :
-		string fileOrigin, functionOrigin;
-		int lineOrigin;
-	};
+    virtual ~Exception();
+
+private :
+    string fileOrigin, functionOrigin;
+    int lineOrigin;
+};
 
 #define __ORIGIN__ __FILE__, __LINE__, __PRETTY_FUNCTION__
 
-    class AssertionFailure : public Exception
+class AssertionFailure : public Exception
+{
+public :
+    AssertionFailure (const char* fileOrigin, int lineOrigin, const char* functionOrigin, const char* condition) :
+        Exception (fileOrigin, lineOrigin, functionOrigin,
+                   "Assertion failed: " + string (condition)), condition (condition)
+    {}
+
+    const string& getCondition() const
     {
-    public :
-        AssertionFailure (const char* fileOrigin, int lineOrigin, const char* functionOrigin, const char* condition) :
-            Exception (fileOrigin, lineOrigin, functionOrigin, "Assertion failed: " + string (condition)), condition (condition)
-        {}
+        return condition;
+    }
 
-        const string& getCondition() const
-        {
-            return condition;
-        }
+    string toString() const;
 
-        string toString() const;
+private :
+    string condition;
+};
 
-    private :
-        string condition;
-    };
+class UnreachableCodeFailure : public Exception
+{
+public :
+    UnreachableCodeFailure (const char* fileOrigin, int lineOrigin, const char* functionOrigin, const char* description) :
+        Exception (fileOrigin, lineOrigin, functionOrigin,
+                   "Normally unreachable code executed: " + string (description)), description (description)
+    {}
 
-    class UnreachableCodeFailure : public Exception
+    const string& getDescription() const
     {
-    public :
-        UnreachableCodeFailure (const char* fileOrigin, int lineOrigin, const char* functionOrigin, const char* description) :
-            Exception (fileOrigin, lineOrigin, functionOrigin, "Normally unreachable code executed: " + string (description)), description (description)
-        {}
+        return description;
+    }
 
-        const string& getDescription() const
-        {
-            return description;
-        }
+    string toString() const;
 
-        string toString() const;
+private :
+    string description;
+};
 
-    private :
-        string description;
-    };
+class InvalidArgumentException : public Exception
+{
+public :
+    InvalidArgumentException (const char* fileOrigin, int lineOrigin, const char* functionOrigin,
+                              string description, string argument = "") :
+        Exception (fileOrigin, lineOrigin, functionOrigin,
+                   "Invalid argument '" + string (argument) + "': " + description),
+        description (description), argument (argument)
+    {}
 
-    class InvalidArgumentException : public Exception
+    const string& getDescription() const
     {
-    public :
-        InvalidArgumentException (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string description, string argument = "") :
-            Exception (fileOrigin, lineOrigin, functionOrigin, "Invalid argument '" + string (argument) + "': " + description), description (description), argument (argument)
-        {}
+        return description;
+    }
 
-        const string& getDescription() const
-        {
-            return description;
-        }
-
-        const string& getArgument() const
-        {
-            return argument;
-        }
-
-        string toString() const;
-
-    private :
-        string description, argument;
-    };
-
-    class FileNotFoundException : public Exception
+    const string& getArgument() const
     {
-    public :
-        FileNotFoundException (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string path, string context) :
-            Exception (fileOrigin, lineOrigin, functionOrigin, "File not found: '" + string (path) + "' " + context), context (context), path (path)
-        {}
+        return argument;
+    }
 
-        const string& getContext() const
-        {
-            return context;
-        }
+    string toString() const;
 
-        const string& getPath() const
-        {
-            return path;
-        }
+private :
+    string description, argument;
+};
 
-        string toString() const;
+class FileNotFoundException : public Exception
+{
+public :
+    FileNotFoundException (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string path, string context) :
+        Exception (fileOrigin, lineOrigin, functionOrigin, "File not found: '" + string (path) + "' " + context),
+        context (context), path (path)
+    {}
 
-    private :
-        string context, path;
-    };
+    const string& getContext() const
+    {
+        return context;
+    }
+
+    const string& getPath() const
+    {
+        return path;
+    }
+
+    string toString() const;
+
+private :
+    string context, path;
+};
 
 #ifndef IN_KDEVELOP_PARSER
 #   define throwAssertionFailure(str) throw sa::AssertionFailure (__ORIGIN__, str)
@@ -147,6 +154,7 @@ namespace sa
 
 #define saAssert(x) ((x) ? true : throwAssertionFailure (#x))
 #define saUnreachable(reason) throw UnreachableCodeFailure (__ORIGIN__, reason)
+
 }
 
 #endif // STYLE_ANALYZER_DEBUG_H

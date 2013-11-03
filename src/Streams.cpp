@@ -11,8 +11,7 @@ IOutputStream::~IOutputStream() {}
 
 IRelativeStreamsManager::~IRelativeStreamsManager() {}
 
-
 string InputOutputException::toString() const
 {
-	return "Operation '" + operation + "' failed on " + streamDescription + ".";
+    return "Operation '" + operation + "' failed on " + streamDescription + ".";
 }

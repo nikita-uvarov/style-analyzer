@@ -8,55 +8,59 @@
 
 namespace sa
 {
-	using std::vector;
-	using std::string;
 
-	vector <string> split (string str, char delimiter);
+using std::vector;
+using std::string;
 
-	template <typename T>
-	string toString (T something)
-	{
-		std::stringstream stream;
-		stream << something;
-		return stream.str();
-	}
+vector <string> split (string str, char delimiter);
 
-	string getBitPositions (uint32_t flags);
+template <typename T>
+string toString (T something)
+{
+    std::stringstream stream;
+    stream << something;
+    return stream.str();
+}
 
-	template <typename T>
-	bool extractFlag (T& flags, T flag)
-	{
-		typedef typename std::underlying_type <T>::type utype;
+string toLower (string s);
 
-		utype theFlags = utype (flags),
-		      theFlag  = utype (flag);
+string getBitPositions (uint32_t flags);
 
-		bool isSet = theFlags & theFlag;
+template <typename T>
+bool extractFlag (T& flags, T flag)
+{
+    typedef typename std::underlying_type <T>::type utype;
 
-		theFlags &= ~theFlag;
-		flags = T (theFlags);
+    utype theFlags = utype (flags),
+          theFlag  = utype (flag);
 
-		return isSet;
-	}
+    bool isSet = theFlags & theFlag;
 
-	string getRealAbsolutePath (string fileName);
-	string getDirectory (string fileOrDirectoryName);
-	string getFilePath (string directory, string fileName);
+    theFlags &= ~theFlag;
+    flags = T (theFlags);
 
-    template <class T>
-    void printVector (std::ostream& stream, const vector <T>& value)
+    return isSet;
+}
+
+string getRealAbsolutePath (string fileName);
+string getDirectory (string fileOrDirectoryName);
+string getFilePath (string directory, string fileName);
+
+template <class T>
+void printVector (std::ostream& stream, const vector <T>& value)
+{
+    if (value.empty())
+        stream << "(empty)";
+    else if (value.size() == 1)
+        stream << "\"" << value[0] << "\"";
+    else
     {
-        if (value.empty())
-            stream << "(empty)";
-        else if (value.size() == 1)
-            stream << "\"" << value[0] << "\"";
-        else
-        {
-            for (auto it = value.begin(); it != value.end(); it++)
-                stream << (it == value.begin() ? "{ " : ", ") << "\"" << *it << "\"";
-            stream << " }";
-        }
+        for (auto it = value.begin(); it != value.end(); it++)
+            stream << (it == value.begin() ? "{ " : ", ") << "\"" << *it << "\"";
+        stream << " }";
     }
+}
+
 }
 
 #endif // STYLE_ANALYZER_UTILITIES_H

@@ -9,84 +9,86 @@
 
 namespace sa
 {
-	using std::string;
-	using std::vector;
-	using std::map;
 
-	class ApplicationLogger
-	{
-	public :
-		void log (const char* file, int line, const char* function, string message, bool error);
+using std::string;
+using std::vector;
+using std::map;
 
-		void openLog (IOutputStream* binaryOutputStream);
-		void closeLog();
+class ApplicationLogger
+{
+public :
+    void log (const char* file, int line, const char* function, string message, bool error);
 
-		void setDuplicateToCerr (bool duplicate);
+    void openLog (IOutputStream* binaryOutputStream);
+    void closeLog();
 
-		static ApplicationLogger& instance();
+    void setDuplicateToCerr (bool duplicate);
 
-	private :
-		ApplicationLogger() = default;
-		ApplicationLogger (const ApplicationLogger&) = delete;
-		ApplicationLogger operator= (const ApplicationLogger&) = delete;
+    static ApplicationLogger& instance();
 
-		// Makes the class POD
-		IOutputStream* stream;
-		map <string, uint32_t>* stringTable;
+private :
+    ApplicationLogger() = default;
+    ApplicationLogger (const ApplicationLogger&) = delete;
+    ApplicationLogger operator= (const ApplicationLogger&) = delete;
 
-		bool duplicateToCerr;
+    // Makes the class POD
+    IOutputStream* stream;
+    map <string, uint32_t>* stringTable;
 
-		void writeString (string string);
-		void writeInteger (uint32_t integer);
-	};
+    bool duplicateToCerr;
 
-	class LogStreamHolder
-	{
-	public :
-		LogStreamHolder (IOutputStream* stream);
-		~LogStreamHolder();
-	};
+    void writeString (string string);
+    void writeInteger (uint32_t integer);
+};
 
-	class ApplicationLog
-	{
-	public :
-		unsigned getNumEntries() const;
+class LogStreamHolder
+{
+public :
+    LogStreamHolder (IOutputStream* stream);
+    ~LogStreamHolder();
+};
 
-		string getEntryFileOrigin (unsigned entryIndex) const;
-		string getEntryFunctionOrigin (unsigned entryIndex) const;
-		unsigned getEntryLineOrigin (unsigned entryIndex) const;
+class ApplicationLog
+{
+public :
+    unsigned getNumEntries() const;
 
-		string getEntryMessage (unsigned entryIndex) const;
-		bool isErrorEntry (unsigned entryIndex) const;
+    string getEntryFileOrigin (unsigned entryIndex) const;
+    string getEntryFunctionOrigin (unsigned entryIndex) const;
+    unsigned getEntryLineOrigin (unsigned entryIndex) const;
 
-		static unique_ptr <ApplicationLog> load (IInputStream* binaryInputStream);
+    string getEntryMessage (unsigned entryIndex) const;
+    bool isErrorEntry (unsigned entryIndex) const;
 
-	private :
-		ApplicationLog() = default;
-		ApplicationLog (const ApplicationLog&) = delete;
-		ApplicationLog& operator= (const ApplicationLog&) = delete;
+    static unique_ptr <ApplicationLog> load (IInputStream* binaryInputStream);
 
-		vector <string> stringTable;
+private :
+    ApplicationLog() = default;
+    ApplicationLog (const ApplicationLog&) = delete;
+    ApplicationLog& operator= (const ApplicationLog&) = delete;
 
-		struct ApplicationLogEntry
-		{
-			unsigned fileOriginIndex, functionOriginIndex;
-			unsigned lineOrigin;
+    vector <string> stringTable;
 
-			unsigned messageIndex;
-			bool isError;
-		};
+    struct ApplicationLogEntry
+    {
+        unsigned fileOriginIndex, functionOriginIndex;
+        unsigned lineOrigin;
 
-		vector <ApplicationLogEntry> entries;
+        unsigned messageIndex;
+        bool isError;
+    };
 
-		unsigned readString (IInputStream* stream);
-		uint32_t readInteger (IInputStream* stream);
-	};
+    vector <ApplicationLogEntry> entries;
 
-	string formatLogEntryForStderr (const char* file, int line, const char* function, string message, bool error);
+    unsigned readString (IInputStream* stream);
+    uint32_t readInteger (IInputStream* stream);
+};
+
+string formatLogEntryForStderr (const char* file, int line, const char* function, string message, bool error);
 
 #define saLog(message) sa::ApplicationLogger::instance().log (__ORIGIN__, (message), false)
 #define saError(message) sa::ApplicationLogger::instance().log (__ORIGIN__, (message), true)
+
 }
 
 #endif // STYLE_ANALYZER_APPLICATION_LOG_H

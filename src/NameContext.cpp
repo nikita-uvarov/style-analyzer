@@ -5,5 +5,5 @@ using namespace sa;
 
 unique_ptr <NameContext> NameContext::create (CXTranslationUnit /*unit*/)
 {
-	return nullptr;
+    return nullptr;
 }

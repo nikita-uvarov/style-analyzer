@@ -7,62 +7,64 @@
 
 namespace sa
 {
-	class UniversalInputStream : public IInputStream
-	{
-	public :
-		~UniversalInputStream() = default;
 
-		uint32_t read (char* buffer, uint32_t nBytes);
-		uint32_t getNumBytesRemaining() const;
+class UniversalInputStream : public IInputStream
+{
+public :
+    ~UniversalInputStream() = default;
 
-		bool isFileStream() const;
-		string getSourceFileName() const;
-		string getSourceBufferName() const;
+    uint32_t read (char* buffer, uint32_t nBytes);
+    uint32_t getNumBytesRemaining() const;
 
-		static unique_ptr <UniversalInputStream> openInputStream (string fileName, RelativeInputStreamFlags flags);
-		static unique_ptr <UniversalInputStream> openInputStream (string bufferName, string bufferContents);
+    bool isFileStream() const;
+    string getSourceFileName() const;
+    string getSourceBufferName() const;
 
-	private :
-		UniversalInputStream (const UniversalInputStream&) = delete;
-		UniversalInputStream& operator= (const UniversalInputStream&) = delete;
+    static unique_ptr <UniversalInputStream> openInputStream (string fileName, RelativeInputStreamFlags flags);
+    static unique_ptr <UniversalInputStream> openInputStream (string bufferName, string bufferContents);
 
-		unique_ptr <char[]> fileContents;
-		uint32_t bufferPosition, bufferSize;
+private :
+    UniversalInputStream (const UniversalInputStream&) = delete;
+    UniversalInputStream& operator= (const UniversalInputStream&) = delete;
 
-		string fileName;
-		bool isBinaryStream, isBroken, isFile;
+    unique_ptr <char[]> fileContents;
+    uint32_t bufferPosition, bufferSize;
 
-		UniversalInputStream (string fileName, bool isBinaryStream);
-		UniversalInputStream (string bufferName);
+    string fileName;
+    bool isBinaryStream, isBroken, isFile;
 
-		string getStreamDescription() const;
+    UniversalInputStream (string fileName, bool isBinaryStream);
+    UniversalInputStream (string bufferName);
 
-		ATTRIBUTE_NORETURN void ioError (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string operation);
-	};
+    string getStreamDescription() const;
 
-	class FileOutputStream : public IOutputStream
-	{
-	public :
-		~FileOutputStream();
+    ATTRIBUTE_NORETURN void ioError (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string operation);
+};
 
-		void write (const char* data, uint32_t nBytes);
+class FileOutputStream : public IOutputStream
+{
+public :
+    ~FileOutputStream();
 
-		static unique_ptr <FileOutputStream> openOutputStream (string fileName, RelativeOutputStreamFlags flags);
+    void write (const char* data, uint32_t nBytes);
 
-	private :
-		FileOutputStream (const FileOutputStream&) = delete;
-		FileOutputStream& operator= (const FileOutputStream&) = delete;
+    static unique_ptr <FileOutputStream> openOutputStream (string fileName, RelativeOutputStreamFlags flags);
 
-		FILE* file;
-		string fileName;
-		bool isBinaryStream, isBroken;
+private :
+    FileOutputStream (const FileOutputStream&) = delete;
+    FileOutputStream& operator= (const FileOutputStream&) = delete;
 
-		FileOutputStream (string fileName, bool isBinaryStream);
+    FILE* file;
+    string fileName;
+    bool isBinaryStream, isBroken;
 
-		string getStreamDescription() const;
+    FileOutputStream (string fileName, bool isBinaryStream);
 
-		ATTRIBUTE_NORETURN void ioError (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string operation);
-	};
+    string getStreamDescription() const;
+
+    ATTRIBUTE_NORETURN void ioError (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string operation);
+};
+
 }
 
 #endif // STYLE_ANALYZER_FILE_STREAMS_H

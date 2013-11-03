@@ -11,9 +11,9 @@
    - some classes that use streams need to be able to get input from file/buffer and use
      IInputStream/IOutputStream. Others may also need to open subsequent streams (e. g. while
      processing include directives). For such cases, there is a 'relativity manager':
-     relative streams are opened by name (typically file name) and pointer to flags (how to interpret file name, where to search etc.)
-     relative to some stream previously opened by this manager. Manager must guarantee it can derive type of stream passed by
-     saving all allocated streams or using dynamic casts, for example.
+     relative streams are opened by name (typically file name) and pointer to flags (how to interpret file name,
+     where to search etc.) relative to some stream previously opened by this manager.
+     Manager must guarantee it can derive type of stream passed (e.g. by saving all allocated streams or using dynamic casts).
    - when opening a new stream via relativity manager, an object can specify stream flags (binary, append).
    - when accessing a passed stream via I*Stream an object can't verify that stream meets requirements.
      If a function reads file given by stream, and expects that stream to be binary, calling it on a text stream would result
@@ -34,81 +34,87 @@
 
 namespace sa
 {
-	using std::unique_ptr;
-	using std::string;
 
-	class IInputStream
-	{
-	public :
-		virtual ~IInputStream();
-		
-		// Returns num bytes actually read
-		virtual uint32_t read (char* buffer, uint32_t nBytes) = 0;
-		
-		// Stream implementation should read the file completely before processing,
-		// Or at least guarantee it would not be changed in runtime and maintain byte counter.
-		virtual uint32_t getNumBytesRemaining() const = 0;
-	};
+using std::unique_ptr;
+using std::string;
 
-	class IOutputStream
-	{
-	public :
-		virtual ~IOutputStream();
-		
-		virtual void write (const char* data, uint32_t nBytes) = 0;
-	};
+class IInputStream
+{
+public :
+    virtual ~IInputStream();
 
-	class InputOutputException : public Exception
-	{
-	public :
-		InputOutputException (const char* fileOrigin, int lineOrigin, const char* functionOrigin, string streamDescription, string operation) :
-			Exception (fileOrigin, lineOrigin, functionOrigin, operation + " failed on " + streamDescription), streamDescription (streamDescription), operation (operation)
-		{}
+    // Returns num bytes actually read
+    virtual uint32_t read (char* buffer, uint32_t nBytes) = 0;
 
-		const string& getStreamDescription() const
-		{
-			return streamDescription;
-		}
+    // Stream implementation should read the file completely before processing,
+    // Or at least guarantee it would not be changed in runtime and maintain byte counter.
+    virtual uint32_t getNumBytesRemaining() const = 0;
+};
 
-		const string& getOperation() const
-		{
-			return operation;
-		}
+class IOutputStream
+{
+public :
+    virtual ~IOutputStream();
 
-		string toString() const;
+    virtual void write (const char* data, uint32_t nBytes) = 0;
+};
 
-	private :
-		string streamDescription, operation;
-	};
+class InputOutputException : public Exception
+{
+public :
+    InputOutputException (const char* fileOrigin, int lineOrigin, const char* functionOrigin,
+                          string streamDescription, string operation) :
+        Exception (fileOrigin, lineOrigin, functionOrigin, operation + " failed on " + streamDescription),
+        streamDescription (streamDescription), operation (operation)
+    {}
 
-	enum class RelativeInputStreamFlags : uint32_t
-	{
-		NONE   = 0,
+    const string& getStreamDescription() const
+    {
+        return streamDescription;
+    }
 
-		BINARY = 1 << 0
-	};
+    const string& getOperation() const
+    {
+        return operation;
+    }
 
-	enum class RelativeOutputStreamFlags : uint32_t
-	{
-		NONE = 0,
+    string toString() const;
 
-		BINARY = 1 << 0,
-		APPEND = 1 << 1
-	};
+private :
+    string streamDescription, operation;
+};
 
-	class IRelativeStreamsManager
-	{
-	public :
-		typedef void* StreamId;
+enum class RelativeInputStreamFlags : uint32_t
+{
+    NONE   = 0,
 
-		virtual ~IRelativeStreamsManager();
+    BINARY = 1 << 0
+};
 
-		virtual StreamId getInputStreamId (IInputStream* stream) = 0;
-		virtual StreamId getOutputStreamId (IOutputStream* stream) = 0;
+enum class RelativeOutputStreamFlags : uint32_t
+{
+    NONE = 0,
 
-		virtual unique_ptr <IInputStream> openInputStream (StreamId relativeTo, string relativeName, void* nameTypeFlagsPointer, RelativeInputStreamFlags flags) = 0;
-		virtual unique_ptr <IOutputStream> openOutputStream (StreamId relativeTo, string relativeName, void* nameTypeFlagsPointer, RelativeOutputStreamFlags flags) = 0;
-	};
+    BINARY = 1 << 0,
+    APPEND = 1 << 1
+};
+
+class IRelativeStreamsManager
+{
+public :
+    typedef void* StreamId;
+
+    virtual ~IRelativeStreamsManager();
+
+    virtual StreamId getInputStreamId (IInputStream* stream) = 0;
+    virtual StreamId getOutputStreamId (IOutputStream* stream) = 0;
+
+    virtual unique_ptr <IInputStream> openInputStream (StreamId relativeTo, string relativeName,
+                                                       void* nameTypeFlagsPointer, RelativeInputStreamFlags flags) = 0;
+    virtual unique_ptr <IOutputStream> openOutputStream (StreamId relativeTo, string relativeName,
+                                                         void* nameTypeFlagsPointer, RelativeOutputStreamFlags flags) = 0;
+};
+
 }
 
 #endif // STYLE_ANALYZER_STREAMS_H

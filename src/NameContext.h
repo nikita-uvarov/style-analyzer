@@ -10,22 +10,24 @@
 
 namespace sa
 {
-	using std::ifstream;
-	using std::ofstream;
-	using std::unique_ptr;
-		
-	class NameContext
-	{
-	public :
-		void save (IOutputStream* stream);
-		static unique_ptr <NameContext> load (IInputStream* stream);
-		static unique_ptr <NameContext> create (CXTranslationUnit unit);
-		
-	private :
-		
-		NameContext (const NameContext&) = delete;
-		NameContext& operator= (const NameContext&) = delete;
-	};
+
+using std::ifstream;
+using std::ofstream;
+using std::unique_ptr;
+
+class NameContext
+{
+public :
+    void save (IOutputStream* stream);
+    static unique_ptr <NameContext> load (IInputStream* stream);
+    static unique_ptr <NameContext> create (CXTranslationUnit unit);
+
+private :
+
+    NameContext (const NameContext&) = delete;
+    NameContext& operator= (const NameContext&) = delete;
+};
+
 }
 
 #endif // STYLE_ANALYZER_NAME_CONTEXT_H

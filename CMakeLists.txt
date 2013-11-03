@@ -46,14 +46,14 @@ set(style_analyzer_library_sources
 
 add_subdirectory(tests/unit)
 
-add_library(style_analyzer_library ${style_analyzer_library_sources})
-target_link_libraries(style_analyzer_library clang stdc++ ${Boost_LIBRARIES})
+add_library(style-analyzer-library ${style_analyzer_library_sources})
+target_link_libraries(style-analyzer-library clang stdc++ ${Boost_LIBRARIES})
 
 set(style_analyzer_tool_sources
 	src/Main.cpp)
 
-add_executable(style_analyzer_tool ${style_analyzer_tool_sources})
-target_link_libraries(style_analyzer_tool style_analyzer_library)
+add_executable(style-analyzer-tool ${style_analyzer_tool_sources})
+target_link_libraries(style-analyzer-tool style-analyzer-library)
 
 #install(TARGETS style_analyzer_library RUNTIME DESTINATION bin)
 

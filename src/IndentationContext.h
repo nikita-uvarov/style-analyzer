@@ -13,86 +13,88 @@
 
 namespace sa
 {
-	using std::string;
-	using std::vector;
-	using std::map;
-	using std::unique_ptr;
-	using std::ifstream;
-	using std::ofstream;
 
-	typedef uint32_t InvisibleModifierId;
-	typedef uint32_t IndentationVariableId;
-	typedef uint32_t TokenClassId;
+using std::string;
+using std::vector;
+using std::map;
+using std::unique_ptr;
+using std::ifstream;
+using std::ofstream;
 
-	struct TokenInterval
-	{
-		bool isAfterNewline;
-		uint32_t nSpaces;
-	};
+typedef uint32_t InvisibleModifierId;
+typedef uint32_t IndentationVariableId;
+typedef uint32_t TokenClassId;
 
-	class IndentationContext
-	{
-	public :
+struct TokenInterval
+{
+    bool isAfterNewline;
+    uint32_t nSpaces;
+};
 
-		void appendToken (uint32_t fileBufferOffset, string tokenValue, TokenInterval previousShift);
+class IndentationContext
+{
+public :
 
-		void annotateToken (unsigned tokenIndex, CXToken clangToken, CXCursor clangCursor);
+    void appendToken (uint32_t fileBufferOffset, string tokenValue, TokenInterval previousShift);
 
-		uint32_t getNumTokens() const;
+    void annotateToken (unsigned tokenIndex, CXToken clangToken, CXCursor clangCursor);
 
-		CXToken getClangToken (unsigned tokenIndex) const;
+    uint32_t getNumTokens() const;
 
-		CXCursor getClangCursor (unsigned tokenIndex) const;
+    CXToken getClangToken (unsigned tokenIndex) const;
 
-		TokenInterval getIntervalBefore (unsigned tokenIndex) const;
+    CXCursor getClangCursor (unsigned tokenIndex) const;
 
-		const vector <InvisibleModifierId>& getInvisibleModifiersBefore (unsigned tokenIndex) const;
+    TokenInterval getIntervalBefore (unsigned tokenIndex) const;
 
-		void setTokenClass (unsigned tokenIndex, TokenClassId tokenClass);
+    const vector <InvisibleModifierId>& getInvisibleModifiersBefore (unsigned tokenIndex) const;
 
-		void addInvisibleModifier (unsigned beforeToken, InvisibleModifierId id);
+    void setTokenClass (unsigned tokenIndex, TokenClassId tokenClass);
 
-		// Modifier removal functions if needed only
+    void addInvisibleModifier (unsigned beforeToken, InvisibleModifierId id);
 
-		TokenClassId getTokenClassId (string className);
-		InvisibleModifierId getInvisibleModifierId (string iModifierName);
+    // Modifier removal functions if needed only
 
-		string getInvisibleModifierName (InvisibleModifierId id) const;
-		string getTokenClassName (TokenClassId id) const;
+    TokenClassId getTokenClassId (string className);
+    InvisibleModifierId getInvisibleModifierId (string iModifierName);
 
-		void save (IOutputStream* stream);
-		static unique_ptr <IndentationContext> load (IInputStream* stream);
-		static unique_ptr <IndentationContext> create (CXTranslationUnit unit);
+    string getInvisibleModifierName (InvisibleModifierId id) const;
+    string getTokenClassName (TokenClassId id) const;
 
-	private :
+    void save (IOutputStream* stream);
+    static unique_ptr <IndentationContext> load (IInputStream* stream);
+    static unique_ptr <IndentationContext> create (CXTranslationUnit unit);
 
-		IndentationContext (const IndentationContext&) = delete;
-		IndentationContext& operator= (const IndentationContext&) = delete;
+private :
 
-		struct AnnotatedTokenInterval
-		{
-			TokenInterval interval;
-			vector <InvisibleModifierId> iModifiers;
-		};
+    IndentationContext (const IndentationContext&) = delete;
+    IndentationContext& operator= (const IndentationContext&) = delete;
 
-		struct Token
-		{
-			uint32_t fileBufferOffset;
-			string tokenValue;
+    struct AnnotatedTokenInterval
+    {
+        TokenInterval interval;
+        vector <InvisibleModifierId> iModifiers;
+    };
 
-			TokenClassId tokenClass;
-			AnnotatedTokenInterval afterTokenInterval;
+    struct Token
+    {
+        uint32_t fileBufferOffset;
+        string tokenValue;
 
-			CXToken clangToken;
-			CXCursor clangCursor;
-		};
+        TokenClassId tokenClass;
+        AnnotatedTokenInterval afterTokenInterval;
 
-		AnnotatedTokenInterval beforeFirstTokenInterval;
-		vector <Token> tokenStream;
+        CXToken clangToken;
+        CXCursor clangCursor;
+    };
 
-		map <string, TokenClassId> tokenClassNameToId;
-		map <string, InvisibleModifierId> invisibleModifierNameToId;
-	};
+    AnnotatedTokenInterval beforeFirstTokenInterval;
+    vector <Token> tokenStream;
+
+    map <string, TokenClassId> tokenClassNameToId;
+    map <string, InvisibleModifierId> invisibleModifierNameToId;
+};
+
 }
 
 #endif // STYLE_ANALYZER_INDENTATION_CONTEXT_H

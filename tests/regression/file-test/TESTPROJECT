@@ -1,3 +1,21 @@
+[grabber]
+Files[]     = "test.cpp"
+
+; The following variables need to go to some common base default configuration file
+; Basically, all options are passed to a tool through some TESTPROJECT file, either
+; existing or through stdin. Some projects do not erase context, so multiple launches
+; on multiple files (e. g. inside a build process, when intermediate files may get deleted, patched or whatever
+; modified right after processing) are possible.
+; A tool that analyses contexts will probably have different option file format.
+NewContext = "true"
+ContextFileName = "sa-context"
+
+[analyser]
+AssertTokenStreams[] = "token-stream-one.txt"
+ContextFileName = "sa-context"
+
+[project]
 Name        = "File test project"
 Description = "Tests our tool is capable of running on a simple file that is accepted by clang."
-Files[]     = "test.cpp"
+DoGrabbing  = "true"
+DoAnalysis  = "true"

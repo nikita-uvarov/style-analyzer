@@ -5,5 +5,5 @@ using namespace sa;
 
 unique_ptr <IndentationContext> IndentationContext::create (CXTranslationUnit /*unit*/)
 {
-	return nullptr;
+    return nullptr;
 }
