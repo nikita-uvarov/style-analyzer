@@ -113,3 +113,13 @@ unique_ptr <IFormattable> sa::wrapFormattable (string s)
     theString->contents = s;
     return result;
 }
+
+unique_ptr <IFormattable> sa::wrapFormattable (int x)
+{
+    unique_ptr <IFormattable> result (new FormattableString);
+    FormattableString* theString = dynamic_cast <FormattableString*> (result.get());
+    std::stringstream s;
+    s << x;
+    theString->contents = s.str();
+    return result;
+}

@@ -79,7 +79,7 @@ string IniProperty::Accessor::resolveRelativePath (unsigned index, string transf
     if (!location.isValid())
         throw InvalidArgumentException (__ORIGIN__,
                                         "Could not resolve property-relative path: property path unavailiable. "
-                                        "(it was not probably declared in a file)", "index");
+                                        "(it probably was not declared in a file)", "index");
 
     IFileSystem& fileSystem = FileSystem::instance();
 
@@ -264,7 +264,6 @@ public :
     void parseKeyValueLine()
     {
         string keyName = expected (Token::Type::IDENTIFIER)->contents;
-        keyName = toLower (keyName);
 
         bool append = false;
         if (current->type == Token::Type::OPEN_BRACKET_OPERATOR)
@@ -282,6 +281,7 @@ public :
         if (!currentSection.empty())
             keyName = currentSection + "." + keyName;
 
+        keyName = toLower (keyName);
         configuration[keyName].push_back (value, !append, location);
     }
 

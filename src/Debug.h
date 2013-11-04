@@ -153,6 +153,7 @@ private :
 #endif
 
 #define saAssert(x) ((x) ? true : throwAssertionFailure (#x))
+#define saVerify(x) ((x) ? true : throwAssertionFailure (#x))
 #define saUnreachable(reason) throw UnreachableCodeFailure (__ORIGIN__, reason)
 
 }

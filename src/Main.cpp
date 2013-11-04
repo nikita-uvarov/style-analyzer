@@ -9,12 +9,67 @@
 #include "Debug.h"
 #include "ApplicationLog.h"
 #include "IniConfiguration.h"
+#include "LibclangHelpers.h"
 
 using namespace std;
 
 void printTranslationUnitParseFailure()
 {
     printf ("Failed to parse translation unit\n");
+}
+
+void grabDataFromFile (sa::IniConfiguration& project, string file)
+{
+    saLog ("Grabbing data from file '%1'...") << file;
+
+    vector <string> compilerCommandLineOptions = project["datagrabbing.commonclangoptions"].asVector();
+
+    sa::ClangIndex index (false, true);
+
+    sa::ClangTranslationUnit unit = index.parseTranslationUnit (file, compilerCommandLineOptions);
+
+    if (!unit)
+        saError ("Translation unit not created, see stderr for more info");
+
+    int nDiagnostics = unit.getNumDiagnostics();
+    bool wereErrors = false;
+
+    for (int i = 0; i < nDiagnostics; i++)
+    {
+        sa::ClangDiagnostic diag = unit.getDiagnostic (i);
+        if (diag.getSeverity() == CXDiagnostic_Error || diag.getSeverity() == CXDiagnostic_Fatal)
+            wereErrors = true;
+
+        saLog (diag.formatDiagnostic (clang_defaultDiagnosticDisplayOptions()));
+    }
+
+    if (wereErrors)
+        saError ("There were errors in a translation unit: grabbing impossible");
+
+    saLog ("Translation unit parsed successfully");
+
+    unique_ptr <sa::FileContext> fileContext = sa::FileContext::create (unit);
+    saAssert (fileContext);
+
+    saLog ("File context is ready to be serialized");
+
+    unique_ptr <sa::IOutputStream> contextOutputStream
+        = sa::FileOutputStream::openOutputStream (project["common.contextfilename"],
+                                                  sa::RelativeOutputStreamFlags::APPEND | sa::RelativeOutputStreamFlags::BINARY);
+
+    fileContext->save (contextOutputStream.get());
+
+    saLog ("Data grabbing finished for file '%1'") << file;
+}
+
+void doDataGrabbing (sa::IniConfiguration& project)
+{
+    saLog ("Data grabbing is enabled.");
+    vector <string> files = project["datagrabbing.files"].asVector();
+    saLog ("Grabbing from files: %1") << files;
+
+    for (unsigned i = 0; i < files.size(); i++)
+        grabDataFromFile (project, project["datagrabbing.files"].resolveRelativePath (i, files[i]));
 }
 
 void processProjectFile (string projectFile)
@@ -29,17 +84,16 @@ void processProjectFile (string projectFile)
     saLog ("Project name: '%1'") << projectName;
     saLog ("Project description: '%1'") << (*project)["project.description"].asString();
 
-    vector <string> files = (*project)["grabber.files"].asVector();
-    saLog ("Project files: %1") << files;
-
-    if ((*project)["project.dograbbing"].asBoolean())
+    if ((*project)["common.newcontext"].asBoolean())
     {
-        //unique_ptr <sa::IInputStream>
+        string contextFileName = (*project)["common.contextfilename"].asString();
+        saLog ("Context '%1' recreation required.") << contextFileName;
+        unique_ptr <sa::IOutputStream> contextMakeBlankStream
+            = sa::FileOutputStream::openOutputStream (contextFileName, sa::RelativeOutputStreamFlags::BINARY);
     }
 
-    if ((*project)["project.doanalysis"].asBoolean())
-    {
-    }
+    if ((*project)["datagrabbing.enabled"].asBoolean())
+        doDataGrabbing (*project);
 
     // Must be invoked from style analyzer temporary directory already.
     // Create 'sa-context' file

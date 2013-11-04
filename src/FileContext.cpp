@@ -31,7 +31,7 @@ unique_ptr <FileContext> FileContext::create (CXTranslationUnit unit)
     saLog ("Read file and created file context.");
 
     saLog ("Ready to create indentation subcontext");
-    context->indentationContext = IndentationContext::create (unit);
+    context->indentationContext = IndentationContext::create (*context, unit);
     saLog ("Indentation subcontext created");
 
     saLog ("Ready to create name subcontext");
@@ -41,12 +41,37 @@ unique_ptr <FileContext> FileContext::create (CXTranslationUnit unit)
     return context;
 }
 
-/*void FileContext::save (IOutputStream* stream)
+void sa::FileContext::save (IOutputStream* stream)
 {
+    serializeString (stream, fileName);
+    serializeString (stream, fileContents);
 
+    indentationContext->save (stream);
+    nameContext->save (stream);
 }
 
-unique_ptr <FileContext> FileContext::load (IInputStream* stream)
+string sa::deserializeString (IInputStream* stream)
+{
+    uint32_t length;
+    saVerify (stream->read (reinterpret_cast <char*> (&length), 4) == 4);
+
+    unique_ptr <char[]> contents (new char[length + 1]);
+    saVerify (stream->read (contents.get(), length) == length);
+
+    string result = contents.get();
+    return result;
+}
+
+void sa::serializeString (IOutputStream* stream, const string& s)
+{
+    uint32_t length = static_cast <uint32_t> (s.length());
+    stream->write (reinterpret_cast <char*> (&length), 4);
+
+    stream->write (s.c_str(), length);
+}
+
+
+/*unique_ptr <FileContext> FileContext::load (IInputStream* stream)
 {
 
 }

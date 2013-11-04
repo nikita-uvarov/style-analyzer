@@ -54,6 +54,7 @@ public :
 };
 
 unique_ptr <IFormattable> wrapFormattable (string s);
+unique_ptr <IFormattable> wrapFormattable (int x);
 
 template <class T>
 unique_ptr <IFormattable> wrapFormattable (vector <T>& object)

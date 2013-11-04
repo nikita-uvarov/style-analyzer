@@ -44,7 +44,8 @@ set(style_analyzer_library_sources
     src/FileStreams.cpp
     src/FileSystem.cpp
     src/StringFormatter.cpp
-    src/Internationalization.cpp)
+    src/Internationalization.cpp
+    src/LibclangHelpers.cpp)
 
 add_subdirectory(tests/unit)
 

@@ -111,7 +111,7 @@ unique_ptr <UniversalInputStream> UniversalInputStream::openInputStream (string 
 
 
 FileOutputStream::FileOutputStream (string fileName, bool isBinaryStream) :
-    fileName (fileName), isBinaryStream (isBinaryStream)
+    file (nullptr), fileName (fileName), isBinaryStream (isBinaryStream), isBroken (false)
 {}
 
 FileOutputStream::~FileOutputStream()
@@ -144,6 +144,7 @@ void FileOutputStream::write (const char* data, uint32_t nBytes)
 unique_ptr <FileOutputStream> FileOutputStream::openOutputStream (string fileName, RelativeOutputStreamFlags flags)
 {
     bool binary = extractFlag (flags, RelativeOutputStreamFlags::BINARY);
+    bool append = extractFlag (flags, RelativeOutputStreamFlags::APPEND);
 
     if (uint32_t (flags))
         throw InvalidArgumentException (__ORIGIN__,
@@ -152,7 +153,9 @@ unique_ptr <FileOutputStream> FileOutputStream::openOutputStream (string fileNam
 
     unique_ptr <FileOutputStream> stream (new FileOutputStream (fileName, binary));
 
-    if (!(stream->file = fopen (fileName.c_str(), binary ? "wb" : "w")))
+    const char* mode = binary ? (append ? "ab" : "wb") : (append ? "a" : "w");
+
+    if (!(stream->file = fopen (fileName.c_str(), mode)))
         stream->ioError (__ORIGIN__, "create (fopen)");
 
     return stream;

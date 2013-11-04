@@ -26,10 +26,14 @@ vector <string> sa::split (string str, char delimiter)
 string sa::getBitPositions (uint32_t flags)
 {
     string bitPositions;
+    bool wasBit = false;
 
     for (uint32_t i = 0; i < 32; i++)
         if (flags & (1 << i))
-            bitPositions += (i ? ", " : "") + toString (i);
+        {
+            bitPositions += (wasBit ? ", " : "") + toString (i);
+            wasBit = true;
+        }
 
     return bitPositions;
 }

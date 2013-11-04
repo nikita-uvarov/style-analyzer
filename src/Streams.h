@@ -99,6 +99,8 @@ enum class RelativeOutputStreamFlags : uint32_t
     APPEND = 1 << 1
 };
 
+RelativeOutputStreamFlags operator| (RelativeOutputStreamFlags a, RelativeOutputStreamFlags b);
+
 class IRelativeStreamsManager
 {
 public :

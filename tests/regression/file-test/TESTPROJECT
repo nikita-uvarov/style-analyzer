@@ -1,21 +1,29 @@
-[grabber]
-Files[]     = "test.cpp"
-
-; The following variables need to go to some common base default configuration file
 ; Basically, all options are passed to a tool through some TESTPROJECT file, either
-; existing or through stdin. Some projects do not erase context, so multiple launches
+; real or through stdin. Some projects do not erase context, so multiple launches
 ; on multiple files (e. g. inside a build process, when intermediate files may get deleted, patched or whatever
 ; modified right after processing) are possible.
-; A tool that analyses contexts will probably have different option file format.
-NewContext = "true"
-ContextFileName = "sa-context"
 
-[analyser]
-AssertTokenStreams[] = "token-stream-one.txt"
-ContextFileName = "sa-context"
+; All tools share the context system - they deserialize the context before working and serialize it after.
+; This decision comes from the realization that they share a lot of modules also.
+; So, the following planned modules are all enabled in the project file (either one-by-one in multiple launches or all-in-one):
+; 1. Grabbing module: grabs file contents, token stream, token types, variable names, parallelism notes, used features (later).
+;    Data that may be required later should all gets grabbed here (to avoid multiple clang invocations on a single file).
+; 2. Token assertion module: performs different types of automated and expected-result-guided checks on token stream
+;    and saved file contents.
+; 3. Name assertion module: compares collected names with the predefined ones.
+; 4. Indentation analysis module: produces an equation system and solves it.
+; 5. Naming analysis module: based on statistical analysis.
+; 6. HTML output generator: produces reports based on the work of module 4-5.
 
 [project]
-Name        = "File test project"
-Description = "Tests our tool is capable of running on a simple file that is accepted by clang."
-DoGrabbing  = "true"
-DoAnalysis  = "true"
+Name            = "File test project"
+Description     = "Tests our tool is capable of running on a simple file that is accepted by clang."
+
+[common]
+NewContext      = "true"
+ContextFileName = "sa-context"
+
+[dataGrabbing]
+Enabled     = "true"
+CommonClangOptions[] = "-I/usr/lib/clang/3.3/include"
+Files[]     = "test.cpp"

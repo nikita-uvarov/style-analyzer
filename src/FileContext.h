@@ -59,6 +59,9 @@ private :
     {}
 };
 
+void serializeString (IOutputStream* stream, const string& s);
+string deserializeString (IInputStream* stream);
+
 }
 
 #endif // STYLE_ANALYZER_FILE_CONTEXT_H

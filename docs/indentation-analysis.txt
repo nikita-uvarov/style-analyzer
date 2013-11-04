@@ -1,0 +1,88 @@
+The Analysis.
+
+Consider the following code samples.
+
+if (...)
+{
+    //
+}
+
+if (...)
+    //
+
+if (...)
+    {
+    ...
+    }
+else
+    {
+    ...
+    }
+
+{
+    ...
+}
+
+So, yeah, let it be.
+
+Token type = (token AST node type; token value if keyword / type otherwise)
+Under special circumstances the types may get altered:
+
+if () { => ) gets special type because the next token is {
+function() => ( gets special type because the parentheses are empty
+
+If equal combinations of token types + i-modifiers correspond to equal space sequences, the program is weak-styled.
+If each token type corresponds to same space interval value, the program is strong-styled.
+
+weak-styling may be sufficient for large project
+But for small programs (typical ejudge usage) we need strong-styling.
+
+Of course, the invisible modifiers conception remains
+
+if ()
+    if ()
+    {
+    }
+
+if ()
+    if ()
+        {
+        }
+
+And how to handle custom line breaks?
+
+function (x, y, t,
+          a, b, c);
+
+function (x, y, t,
+              a, b, c);
+
+function (x, y, t
+    a, b, c);
+
+And how to handle custom one-liners?
+
+if (x) helloworld();
+
+if (x) return x + y + z / 2;
+
+if (x) { a = b; c = d; }
+
+if (x) a = b; else c = d;
+
+And finally completely style-dependent break.
+
+if (x)
+{
+}
+else
+{
+}
+
+if (x)
+{
+} else
+{
+}
+
+The question of how to detect style in type declarations remains open...

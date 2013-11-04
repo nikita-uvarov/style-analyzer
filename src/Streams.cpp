@@ -15,3 +15,8 @@ string InputOutputException::toString() const
 {
     return "Operation '" + operation + "' failed on " + streamDescription + ".";
 }
+
+RelativeOutputStreamFlags sa::operator| (RelativeOutputStreamFlags a, RelativeOutputStreamFlags b)
+{
+    return static_cast <RelativeOutputStreamFlags> (static_cast <uint32_t> (a) | static_cast <uint32_t> (b));
+}

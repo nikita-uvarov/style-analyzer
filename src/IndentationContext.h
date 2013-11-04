@@ -31,11 +31,13 @@ struct TokenInterval
     uint32_t nSpaces;
 };
 
+class FileContext;
+
 class IndentationContext
 {
 public :
 
-    void appendToken (uint32_t fileBufferOffset, string tokenValue, TokenInterval previousShift);
+    /*void appendToken (uint32_t fileBufferOffset, string tokenValue, TokenInterval previousShift);
 
     void annotateToken (unsigned tokenIndex, CXToken clangToken, CXCursor clangCursor);
 
@@ -59,13 +61,14 @@ public :
     InvisibleModifierId getInvisibleModifierId (string iModifierName);
 
     string getInvisibleModifierName (InvisibleModifierId id) const;
-    string getTokenClassName (TokenClassId id) const;
+    string getTokenClassName (TokenClassId id) const;*/
 
     void save (IOutputStream* stream);
     static unique_ptr <IndentationContext> load (IInputStream* stream);
-    static unique_ptr <IndentationContext> create (CXTranslationUnit unit);
+    static unique_ptr <IndentationContext> create (FileContext& fileContext, CXTranslationUnit unit);
 
 private :
+    IndentationContext() = default;
 
     IndentationContext (const IndentationContext&) = delete;
     IndentationContext& operator= (const IndentationContext&) = delete;
@@ -84,15 +87,19 @@ private :
         TokenClassId tokenClass;
         AnnotatedTokenInterval afterTokenInterval;
 
-        CXToken clangToken;
-        CXCursor clangCursor;
+        CXToken token;
     };
 
-    AnnotatedTokenInterval beforeFirstTokenInterval;
+    //AnnotatedTokenInterval beforeFirstTokenInterval;
     vector <Token> tokenStream;
 
     map <string, TokenClassId> tokenClassNameToId;
     map <string, InvisibleModifierId> invisibleModifierNameToId;
+
+    void setTokenClass (Token& token, string tokenTypeString);
+    void addInvisibleModifier (Token& token, string modifierName);
+
+    void assignTokenTypes();
 };
 
 }

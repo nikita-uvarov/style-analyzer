@@ -23,6 +23,7 @@ public :
     static unique_ptr <NameContext> create (CXTranslationUnit unit);
 
 private :
+    NameContext() = default;
 
     NameContext (const NameContext&) = delete;
     NameContext& operator= (const NameContext&) = delete;
